@@ -6,19 +6,20 @@ import (
 	"fmt"
 	"log"
 
-	"entgo.io/ent/examples/m2m2types/ent"
-	"entgo.io/ent/examples/m2m2types/ent/migrate"
 	"github.com/gofiber/fiber/v2"
 	"github.com/res0lution/digital-house/config"
+	"github.com/res0lution/digital-house/ent"
+	"github.com/res0lution/digital-house/ent/migrate"
 	"github.com/res0lution/digital-house/middleware"
 	"github.com/res0lution/digital-house/routes"
 	"github.com/res0lution/digital-house/utils"
+	_ "github.com/lib/pq"
 )
 
 func main() {
 	conf := config.New()
 
-	client, err := ent.Open("postgres", fmt.Sprintf("host=%s port=%s user=%s dbname=%s password=%s sslmode=disabled", conf.Database.Host, conf.Database.Port, conf.Database.User, conf.Database.Name, conf.Database.Password))
+	client, err := ent.Open("postgres", fmt.Sprintf("host=%s port=%s user=%s dbname=%s password=%s sslmode=disable", conf.Database.Host, conf.Database.Port, conf.Database.User, conf.Database.Name, conf.Database.Password))
 	
 	if err != nil {
 		utils.Fatalf("Database connection failed: ", err)
