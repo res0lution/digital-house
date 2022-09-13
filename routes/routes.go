@@ -1,17 +1,12 @@
 package routes
 
 import (
-	"fmt"
 
 	"github.com/gofiber/fiber/v2"
+	"github.com/res0lution/digital-house/handlers"
 )
 
-func SetupApiV1(app *fiber.App) {
+func SetupApiV1(app *fiber.App, handlers *handlers.Handler) {
 	v1 := app.Group("/api/v1")
-	Route := v1.Group("/test")
-
-	Route.Get("/hello", func(ctx *fiber.Ctx) error {
-		fmt.Println("Its all working!!")
-		return nil
-	})
+	SetupUserRoutes(v1, handlers)
 }

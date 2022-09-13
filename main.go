@@ -7,13 +7,14 @@ import (
 	"log"
 
 	"github.com/gofiber/fiber/v2"
+	_ "github.com/lib/pq"
 	"github.com/res0lution/digital-house/config"
 	"github.com/res0lution/digital-house/ent"
 	"github.com/res0lution/digital-house/ent/migrate"
+	"github.com/res0lution/digital-house/handlers"
 	"github.com/res0lution/digital-house/middleware"
 	"github.com/res0lution/digital-house/routes"
 	"github.com/res0lution/digital-house/utils"
-	_ "github.com/lib/pq"
 )
 
 func main() {
@@ -43,7 +44,9 @@ func main() {
 
 	middleware.SetMiddleware(app)
 
-	routes.SetupApiV1(app)
+	handler := handlers.NewHandlers(client, conf)
+
+	routes.SetupApiV1(app, handler)
 
 	port := "8000"
 
