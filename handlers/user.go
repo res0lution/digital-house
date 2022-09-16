@@ -34,6 +34,8 @@ func (h *Handler) UserRegister(ctx *fiber.Ctx) error {
 		if err != nil {
 			ctx.Status(http.StatusInternalServerError)
 		}
+
+		return nil
 	}
 
 	if err = request.validate(); err != nil {
@@ -81,3 +83,58 @@ func (h *Handler) UserRegister(ctx *fiber.Ctx) error {
 
 	return nil
 }
+
+func (h *Handler) UserLogin(ctx *fiber.Ctx) error {
+	var request loginRequest
+
+	err := ctx.BodyParser(&request)
+
+	if err != nil {
+		err = ctx.Status(http.StatusBadRequest).JSON(fiber.Map{
+			"error": true,
+			"message": "Invalid Json",
+		})
+
+		if err != nil {
+			ctx.Status(http.StatusInternalServerError)
+		}
+
+		return nil
+	}
+
+	u, err := h.Client.User.Query().Where(user.Email(request.Email)).Only(ctx.Context())
+
+	if err != nil {
+		ctx.Status(http.StatusBadRequest).JSON(fiber.Map{
+			"error": true,
+			"message": "Invalid user",
+		})
+
+		return nil
+	}
+
+	if err = utils.ComparePassword(request.Password, u.Password); err != nil {
+		ctx.Status(http.StatusBadRequest).JSON(fiber.Map{
+			"error": true,
+			"message": "Invalid credentials",
+		})
+
+		return nil
+	}
+
+	response := map[string]interface{}{
+		"firstname": u.FirstName,
+		"lastname": u.LastName,
+		"email": u.Email,
+		"avatar": u.Avatar,
+	}
+
+	_ = ctx.Status(http.StatusOK).JSON(fiber.Map{
+		"error": false,
+		"data": response,
+	})
+
+
+	return nil
+}
+

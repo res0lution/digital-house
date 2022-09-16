@@ -8,4 +8,5 @@ import (
 func SetupUserRoutes(grp fiber.Router, handlers *handlers.Handler) {
 	useRoute := grp.Group("/user")
 	useRoute.Post("/register", handlers.UserRegister)
+	useRoute.Post("/login", handlers.UserLogin)
 }
