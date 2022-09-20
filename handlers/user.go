@@ -6,8 +6,10 @@ import (
 
 	validation "github.com/go-ozzo/ozzo-validation"
 	"github.com/go-ozzo/ozzo-validation/is"
+	"github.com/google/uuid"
 	"github.com/gofiber/fiber/v2"
 	"github.com/res0lution/digital-house/ent/user"
+	"github.com/res0lution/digital-house/middleware"
 	"github.com/res0lution/digital-house/utils"
 )
 
@@ -122,6 +124,13 @@ func (h *Handler) UserLogin(ctx *fiber.Ctx) error {
 		return nil
 	}
 
+	token, err := middleware.ClainToken(u.ID)
+
+	if err != nil {
+		utils.Errorf("Token generation error: ", err)
+		return nil
+	}
+
 	response := map[string]interface{}{
 		"firstname": u.FirstName,
 		"lastname": u.LastName,
@@ -132,8 +141,46 @@ func (h *Handler) UserLogin(ctx *fiber.Ctx) error {
 	_ = ctx.Status(http.StatusOK).JSON(fiber.Map{
 		"error": false,
 		"data": response,
+		"token": token,
 	})
 
+
+	return nil
+}
+
+func (h *Handler) MeQuery (ctx *fiber.Ctx) error {
+	userid, err := middleware.GetUserIdFromContext(ctx)
+
+	if err != nil {
+		ctx.Status(fiber.StatusUnauthorized)
+		return nil
+	}
+
+	uid, _ := uuid.Parse(userid)
+
+	u, err := h.Client.User.Query().Where(user.ID(uid)).Only(ctx.Context())
+
+	if err != nil {
+		ctx.Status(http.StatusNotFound).JSON(fiber.Map{
+			"error": true,
+			"message": "Cannot find the user",
+		})
+
+		return nil
+	}
+
+	response := map[string]interface{}{
+		"firstname": u.FirstName,
+		"lastname": u.LastName,
+		"email": u.Email,
+		"avatar": u.Avatar,
+	}
+
+
+	_ = ctx.Status(http.StatusOK).JSON(fiber.Map{
+		"error": false,
+		"data": response,
+	})
 
 	return nil
 }

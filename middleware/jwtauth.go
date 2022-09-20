@@ -26,7 +26,7 @@ func IsAuthenticated(config *config.Config) func(ctx *fiber.Ctx) error {
 }
 
 func GetUserIdFromContext(ctx *fiber.Ctx) (string, error) {
-	user := ctx.Locals("user").(jwt.Token)
+	user := ctx.Locals("user").(*jwt.Token)
 	claims := user.Claims.(jwt.MapClaims)
 	strId := claims["sub"].(string)
 
